@@ -3,8 +3,8 @@
 Ce composant permet de gérer les radiateurs traditionnels connectés via la solution TIKO depuis le serveur Home Assistant. Il nécessite l'hébergement d'une page web qui servira d'endpoint pour communiquer avec l'API de TIKO.
 
 Ce programme a deux fonctions principales :
-a) Il aide à configurer le package Tiko dans votre Home Assistant en générant un fichier tiko.yaml et les cartes associées.
-b) Il sert d'endpoint entre votre Home Assistant et l'API de Tiko (pour mettre à jour les capteurs, envoyer des commandes, etc.)
+- Il aide à configurer le package Tiko dans votre Home Assistant en générant un fichier tiko.yaml et les cartes associées.
+- Il sert d'endpoint entre votre Home Assistant et l'API de Tiko (pour mettre à jour les capteurs, envoyer des commandes, etc.)
 
 Ce programme doit être hébergé à cet effet.
 
@@ -19,8 +19,8 @@ http://www.votredomaine.com/tiko.php?install=true&hash=ENDPOINT_TOKEN (remplacez
 Component allowing to manage traditional radiators connected via the TIKO solution from within Home Assistant server. It requires hosting a web page that will serve as an endpoint to communicate with TIKO through their API.
 
 This program has two main functions:
-a) It'll help to setup Tiko package in your home assistant, by generating tiko.yaml file + related cards
-b) Serve as endpoint between your Home Assistant and Tiko's API (to update sensors, send commands, etc.)
+- It'll help to setup Tiko package in your home assistant, by generating tiko.yaml file + related cards
+- Serve as endpoint between your Home Assistant and Tiko's API (to update sensors, send commands, etc.)
 
 This program need to be hosted for this purpose.
 
