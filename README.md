@@ -12,8 +12,8 @@ Après la première utilisation, le script créera un fichier tiko.env dans le m
 
 La page de configuration peut être accédée comme ceci :
 http://www.votredomaine.com/tiko.php?install=true&hash=ENDPOINT_TOKEN (remplacez ENDPOINT_TOKEN par la valeur trouvée dans tiko.env)
+##==========================================================================
 
-##================================================================================================================================
 
 Component allowing to manage traditional radiators connected via the TIKO solution from within Home Assistant server. It requires hosting a web page that will serve as an endpoint to communicate with TIKO through their API.
 
@@ -28,7 +28,7 @@ After first use the script will create a tiko.env file in the same directory wit
 The setup page can be access like this :
 http://www.yourdomain.com/tiko.php?install=true&hash=ENDPOINT_TOKEN (replace ENDPOINT_TOKEN with value found in tiko.env)
 
-##================================================================================================================================
+##==========================================================================
 
 Release date : 2023-03-04
 
