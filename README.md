@@ -13,6 +13,9 @@ Après la première utilisation, le script créera un fichier tiko.env dans le m
 La page de configuration peut être accédée comme ceci :
 http://www.votredomaine.com/tiko.php?install=true&hash=ENDPOINT_TOKEN (remplacez ENDPOINT_TOKEN par la valeur trouvée dans tiko.env)
 
+Preview de l'integration dans lovelace :
+https://community.jeedom.com/uploads/default/original/3X/f/2/f2b58b1243929012af284ff6c9c3778923484686.png
+
 ##==========================================================================
 
 
@@ -28,6 +31,10 @@ After first use the script will create a tiko.env file in the same directory wit
 
 The setup page can be access like this :
 http://www.yourdomain.com/tiko.php?install=true&hash=ENDPOINT_TOKEN (replace ENDPOINT_TOKEN with value found in tiko.env)
+
+Lovelace card's preview : 
+https://community.jeedom.com/uploads/default/original/3X/f/2/f2b58b1243929012af284ff6c9c3778923484686.png
+
 
 ##==========================================================================
 
