@@ -12,6 +12,7 @@ Après la première utilisation, le script créera un fichier tiko.env dans le m
 
 La page de configuration peut être accédée comme ceci :
 http://www.votredomaine.com/tiko.php?install=true&hash=ENDPOINT_TOKEN (remplacez ENDPOINT_TOKEN par la valeur trouvée dans tiko.env)
+
 ##==========================================================================
 
 
