@@ -6,7 +6,7 @@ Ce programme a deux fonctions principales :
 - Il aide à configurer le package Tiko dans votre Home Assistant en générant un fichier tiko.yaml et les cartes associées.
 - Il sert d'endpoint entre votre Home Assistant et l'API de Tiko (pour mettre à jour les capteurs, envoyer des commandes, etc.)
 
-Ce programme doit être hébergé à cet effet.
+Ce programme doit être hébergé et accessible en ligne pour que votre serveur assistant puisse y accéder.
 
 Après la première utilisation, le script créera un fichier tiko.env dans le même répertoire avec les informations d'identification et l'URL de l'endpoint.
 
