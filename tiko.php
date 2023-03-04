@@ -11,7 +11,7 @@
 // After first use the script will create a tiko.env file in the same directory with credentials & endpoint URL.
 //---------------------------------------------------------------------------------------------------
 // The setup page can be access like this :
-// http://www.yourdomain.com/heat.php?install=true&hash=ENDPOINT_TOKEN (replace ENDPOINT_TOKEN with value found in tiko.env)
+// http://www.yourdomain.com/tiko.php?install=true&hash=ENDPOINT_TOKEN (replace ENDPOINT_TOKEN with value found in tiko.env)
 //---------------------------------------------------------------------------------------------------
 // release date : 2023-03-04
 //===================================================================================================
@@ -51,7 +51,7 @@ if ($_REQUEST['enr_ok']) {
   $put = file_put_contents($currentFolder.'tiko.env', $config_string);
 
   // Config file is now created, redirect user on setup page
-  header('Location: heat.php?install=true&hash='.$randomtoken);
+  header('Location: tiko.php?install=true&hash='.$randomtoken);
   exit;
 }
 // If credentials's missing, ask to fill them again
