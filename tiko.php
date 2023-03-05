@@ -222,7 +222,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
        * INSTALLER, generate the tiko.yaml file
       *****************************************/
       if($_REQUEST["install"]){
-         require($serv_root.$prod."/include/Spyc.php");
+         require($currentFolder."Spyc.php");
 
          $json = '{
             "operationName":"GET_PROPERTY_OVERVIEW_DECENTRALISED",
