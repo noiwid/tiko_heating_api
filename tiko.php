@@ -10,8 +10,10 @@
 // 
 // After first use the script will create a tiko.env file in the same directory with credentials & endpoint URL.
 //---------------------------------------------------------------------------------------------------
-// The setup page can be access like this :
-// http://www.yourdomain.com/tiko.php?install=true&hash=ENDPOINT_TOKEN (replace ENDPOINT_TOKEN with value found in tiko.env)
+// To launch install, go to :
+// https://www.yourdomain.com/tiko.php
+// If you need to reinstall the H.A package, you can access the H.A setup page like this :
+// https://www.yourdomain.com/tiko.php?install=true&hash=ENDPOINT_TOKEN (replace ENDPOINT_TOKEN with value found in tiko.env)
 //---------------------------------------------------------------------------------------------------
 // release date : 2023-03-04
 //===================================================================================================
