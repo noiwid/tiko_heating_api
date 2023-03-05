@@ -7,6 +7,7 @@ Ce programme a deux fonctions principales :
 - Il sert d'endpoint entre votre Home Assistant et l'API de Tiko (pour mettre à jour les capteurs, envoyer des commandes, etc.)
 
 Ce programme doit être hébergé et accessible en ligne pour que votre serveur assistant puisse y accéder.
+Il utilise la librairie Spyc (https://github.com/mustangostang/spyc) qui permet de convertir des tableaux PHP en YAML, il faut donc veiller à mettre le fichier spyc.php dans le même dossier que le script principal (tiko.php): 
 
 Après la première utilisation, le script créera un fichier tiko.env dans le même répertoire avec les informations d'identification et l'URL de l'endpoint.
 
@@ -26,6 +27,7 @@ This program has two main functions:
 - Serve as endpoint between your Home Assistant and Tiko's API (to update sensors, send commands, etc.)
 
 This program need to be hosted for this purpose.
+It use Spyc library (https://github.com/mustangostang/spyc) that convert PHP array to YAML, you need to ensure spyc.php file is located in the same folder as main script (tiko.php).
 
 After first use the script will create a tiko.env file in the same directory with credentials & endpoint URL.
 
