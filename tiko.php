@@ -637,7 +637,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                     - <strong>Better Thermostat UI :</strong> <a href="https://github.com/KartoffelToby/better-thermostat-ui-card">https://github.com/KartoffelToby/better-thermostat-ui-card</a></a>                     
                  </div>
                  <div style="margin:5px 0">
-                    - <strong>Vertical Stack In Card : </strong> <a href="https://mars.decrocher-la-lune.com:8123/hacs/repository/439367892">https://mars.decrocher-la-lune.com:8123/hacs/repository/439367892</a>
+                    - <strong>Vertical Stack In Card : </strong> <a href="https://github.com/ofekashery/vertical-stack-in-card">https://github.com/ofekashery/vertical-stack-in-card</a>
                  </div>
                 </li>
                 <li>Pour gérer vos radiateurs depuis votre dashboard lovelace, editez votre dashboard puis ajoutez une carte en mode manuel, et collez le code suivant dans l'éditeur de cartes :</strong><br/>
