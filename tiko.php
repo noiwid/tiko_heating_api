@@ -30,12 +30,12 @@ if(file_exists($currentFolder.'tiko.env'))
   $config = parse_ini_file($currentFolder.'tiko.env', true);
 
 if ($_REQUEST['enr_ok']) {
-  $randomtoken = bin2hex(random_bytes(32));
+   $randomtoken = bin2hex(random_bytes(32));
 
   // Get current URL
   $url = 'http' . (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
   
-  // Remove params from the URL
+  // Remove filename to only keep script name
   $script_url = strtok($url, '?');
 
   // Get datas from form 
@@ -55,11 +55,6 @@ if ($_REQUEST['enr_ok']) {
          $config_string .= "\n";
      }
   $put = file_put_contents($currentFolder.'tiko.env', $config_string);
-
-  // recupère la librairie spyc
-  $url = 'https://raw.githubusercontent.com/mustangostang/spyc/master/Spyc.php';
-  $content = file_get_contents($url);
-  file_put_contents($currentFolder.'spyc.php', $content);
 
   // Config file is now created, redirect user on setup page
   header('Location: tiko.php?install=true&hash='.$randomtoken);
@@ -745,7 +740,32 @@ function cleanStr($text) {
 // Les variables n'ont pas été définies, afficher un formulaire pour les saisir
 function f_settings(){
    global $PHP_SELF;
-   $currentFolder = dirname(__FILE__).DIRECTORY_SEPARATOR;?>
+   $currentFolder = dirname(__FILE__).DIRECTORY_SEPARATOR;
+
+
+    if(function_exists('curl_init')){
+      // Initialiser une session curl
+      $curl = curl_init();
+
+      // Définir l'URL du fichier distant à récupérer
+      $url = 'https://raw.githubusercontent.com/mustangostang/spyc/master/Spyc.php';
+
+      // Définir les options de la session curl
+      curl_setopt($curl, CURLOPT_URL, $url); // URL à récupérer
+      curl_setopt($curl, CURLOPT_RETURNTRANSFER, true); // Retourner le contenu de la requête dans une variable
+      curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true); // Suivre les redirections
+      curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false); // Ignorer les erreurs SSL
+
+      // Exécuter la session curl et récupérer le contenu
+      $content = curl_exec($curl);
+
+      // Fermer la session curl
+      curl_close($curl);
+
+      if($content){
+        file_put_contents($currentFolder.'spyc.php', $content);
+      }
+    }?>
    <!doctype html>
     <html lang="fr">
     <head>
@@ -829,10 +849,9 @@ function f_settings(){
               content: counter(li-counter);
               counter-increment: li-counter;
           }
-      </style>
+          </styl
       </body>
   </html>
   <?php
   exit;
-}
-?>
+}?>
