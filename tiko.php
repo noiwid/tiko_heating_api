@@ -35,7 +35,7 @@ if ($_REQUEST['enr_ok']) {
   // Get current URL
   $url = 'http' . (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
   
-  // Remove filename to only keep script name
+  // Remove params from the URL
   $script_url = strtok($url, '?');
 
   // Get datas from form 
