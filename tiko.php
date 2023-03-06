@@ -30,16 +30,13 @@ if(file_exists($currentFolder.'tiko.env'))
   $config = parse_ini_file($currentFolder.'tiko.env', true);
 
 if ($_REQUEST['enr_ok']) {
-   $randomtoken = bin2hex(random_bytes(32));
+  $randomtoken = bin2hex(random_bytes(32));
 
-   // Get current URL
-   $url = 'http' . (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-
-   // Remove params from URL
-   $url_without_params = strtok($url, '?');
-
-   // Remove filename to only keep script name
-   $script_url = str_replace(basename($_SERVER['SCRIPT_NAME']), '', $url_without_params);
+  // Get current URL
+  $url = 'http' . (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+  
+  // Remove filename to only keep script name
+  $script_url = strtok($url, '?');
 
   // Get datas from form 
   $config['tiko_credentials']['TIKO_EMAIL'] = $_POST['email'];
