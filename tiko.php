@@ -1,11 +1,30 @@
-<?php
-///////////
-// VARS
-//////////
+<?
+//===================================================================================================
+// TIKO API GATEWAY
+// This component allowing to manage traditional radiators connected via the TIKO solution from within Home Assistant server
+//---------------------------------------------------------------------------------------------------
+// This program has two main functions:
+// a) It'll help to setup Tiko package in your home assistant, by generating tiko.yaml file + related cards
+// b) Serve as endpoint between your Home Assistant and Tiko's API (to update sensors, send commands, etc.)
+// This program need to be hosted for this purpose.
+// 
+// After first use the script will create a tiko.env file in the same directory with credentials & endpoint URL.
+//---------------------------------------------------------------------------------------------------
+// The setup page can be access like this :
+// http://www.yourdomain.com/heat.php?install=true&hash=ENDPOINT_TOKEN (replace ENDPOINT_TOKEN with value found in tiko.env)
+//---------------------------------------------------------------------------------------------------
+// release date : 2023-03-04
+//===================================================================================================
 
-// Charger les variables d'environnement à partir du fichier .env
+/*
+DEBUG MODE
+error_reporting(E_ERROR);
+ini_set('display_errors', '1');
+$enable_logs = true;
+*/
+
+// Load environnement variables & credentials<?php
 $currentFolder = dirname(__FILE__).DIRECTORY_SEPARATOR;
-$enable_logs = false;
 
 if(file_exists($currentFolder.'tiko.env'))
   $config = parse_ini_file($currentFolder.'tiko.env', true);
@@ -13,16 +32,16 @@ if(file_exists($currentFolder.'tiko.env'))
 if ($_REQUEST['enr_ok']) {
    $randomtoken = bin2hex(random_bytes(32));
 
-   // Récupère l'URL de la page en cours
+   // Get current URL
    $url = 'http' . (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
-   // Supprime les paramètres de la requête
+   // Remove params from URL
    $url_without_params = strtok($url, '?');
 
-   // Supprime le nom du fichier pour obtenir l'URL du script
+   // Remove filename to only keep script name
    $script_url = str_replace(basename($_SERVER['SCRIPT_NAME']), '', $url_without_params);
 
-  // Variables récupérées par le formulaire
+  // Get datas from form 
   $config['tiko_credentials']['TIKO_EMAIL'] = $_POST['email'];
   $config['tiko_credentials']['TIKO_PASSWORD'] = $_POST['password'];
   // Token aléatoire
@@ -43,14 +62,13 @@ if ($_REQUEST['enr_ok']) {
   // recupère la librairie spyc
   $url = 'https://raw.githubusercontent.com/mustangostang/spyc/master/Spyc.php';
   $content = file_get_contents($url);
-  // Écriture du contenu dans le fichier local
   file_put_contents($currentFolder.'spyc.php', $content);
 
-  // Rediriger l'utilisateur vers une page de confirmation ou de succès
+  // Config file is now created, redirect user on setup page
   header('Location: tiko.php?install=true&hash='.$randomtoken);
   exit;
 }
-// Si le les variables manquent, demande à l'utilisateur de les saisir
+// If credentials's missing, ask to fill them again
 if (!isset($config['tiko_credentials']['TIKO_EMAIL']) || !isset($config['tiko_credentials']['TIKO_PASSWORD'])) {
    f_settings();
     
@@ -247,7 +265,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                $array["tiko"]["climate"][] = array(
                   "platform"=>"generic_thermostat",
                   "name"=>$v,
-                  "heater"=>"switch.radiateurs_off",
+                  "heater"=>"switch.radiateurs_on_off",
                   "target_sensor"=>"sensor.".clean($v)."_temperature"
                );
                $array["tiko"]["shell_command"][clean($v)."_set_temp"] = '/usr/bin/curl -X POST '.$baseurl.'&room_id='.$k.'&temperature={{ state_attr("climate.'.clean($v).'", "temperature") }}';
@@ -269,7 +287,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                      array(
                         "condition"=>"state",
                         "entity_id"=>"binary_sensor.".clean($v)."_chauffage",
-                        "state"=>"heat"
+                        "state"=>"on"
                      ),
                   ),
                   "action"=>array(
@@ -743,8 +761,13 @@ function f_settings(){
             $error_feedback = '<li><strong>Erreur </strong>: le dossier <strong>'.$currentFolder.'</strong> n\'est pas autorisé en écriture.</li>';
         }
         if(!function_exists('curl_init')){
-            $error_feedback .= '<li><strong>Erreur :</strong> l\'extension <strong>curl</strong> n\'est pas activée. Veuilmez vous assurez que la ligne suivantes est présente et non commentée dans votre fichier <strong>httpd.conf</strong>
+            $error_feedback .= '<li><strong>Erreur :</strong> l\'extension <strong>curl</strong> n\'est pas activée. Veuillez vous assurez que la ligne suivantes est présente et non commentée dans votre fichier <strong>httpd.conf</strong>
              <div class="code">extension=curl</div>
+          </li>';
+        }
+        if(!file_get_contents('https://raw.githubusercontent.com/mustangostang/spyc/master/Spyc.php')){
+            $error_feedback .= '<li><strong>Erreur :</strong> le paramètre <strong>allow_url_fopen</strong> n\'est pas activé. Veuillez vous assurez que la ligne suivantes est présente et non commentée dans votre fichier <strong>php.ini</strong>
+             <div class="code">allow_url_fopen = On</div>
           </li>';
         }
         if($error_feedback){?>
