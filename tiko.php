@@ -5,6 +5,7 @@
 
 // Charger les variables d'environnement à partir du fichier .env
 $currentFolder = dirname(__FILE__).DIRECTORY_SEPARATOR;
+$enable_logs = false;
 
 if(file_exists($currentFolder.'tiko.env'))
   $config = parse_ini_file($currentFolder.'tiko.env', true);
@@ -60,7 +61,7 @@ else {
    $hash = $config['tiko_endpoint']['ENDPOINT_TOKEN'];
    $baseurl = $config['tiko_endpoint']['ENDPOINT_URL']."?hash=".$hash;
 }
-   
+  
 ///////////////
 // FUNCTION
 //////////////
@@ -127,7 +128,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
    if(!$_REQUEST["room_id"] and !isset($_REQUEST["mode"]) and $_REQUEST["consumption"]){
       $datas = f_tiko(false, $token, $account_id);
       $feedback = $datas["response"];
-      $logs = file_put_contents($serv_root.$prod."/include/logs/".date("Ymd-His")."-getDatas.log", print_r($feedback, true));
+      if($enable_logs) $logs = file_put_contents($currentFolder.date("Ymd-His")."-getDatas.log", print_r($feedback, true));
    }
 
    /**********************************
@@ -180,7 +181,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
             else 
                $feedback["status"]=false;
 
-         $logs = file_put_contents($serv_root.$prod."/include/logs/".date("Ymd-His")."-changeRoomTemp_".$_REQUEST["room_id"].".log", print_r($feedback, true));
+         if($enable_logs) $logs = file_put_contents($currentFolder.date("Ymd-His")."-changeRoomTemp_".$_REQUEST["room_id"].".log", print_r($feedback, true));
    }
 
       /*********************************
@@ -209,13 +210,18 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                $feedback["status"]=true;
             else 
                $feedback["status"]=false;
-         $logs = file_put_contents($serv_root.$prod."/include/logs/".date("Ymd-His")."-changeMode_".$mode.".log", $_SERVER['REMOTE_ADDR']."\n".$_SERVER['HTTP_USER_AGENT']."\n".basename($_SERVER['REQUEST_URI'])."\n\n".print_r($feedback, true));
+         if($enable_logs) $logs = file_put_contents($currentFolder.date("Ymd-His")."-changeMode_".$mode.".log", $_SERVER['REMOTE_ADDR']."\n".$_SERVER['HTTP_USER_AGENT']."\n".basename($_SERVER['REQUEST_URI'])."\n\n".print_r($feedback, true));
       }
       /*****************************************
        * INSTALLER, generate the tiko.yaml file
       *****************************************/
       if($_REQUEST["install"]){
-         require($currentFolder.'spyc.php');
+
+         if(file_exists($currentFolder.'tiko.env'))
+          require($currentFolder.'spyc.php');  
+         else {
+          echo "Fichier spyc.php manquant !"; exit;
+        }
          $json = '{
             "operationName":"GET_PROPERTY_OVERVIEW_DECENTRALISED",
             "variables":{ "id":'.$account_id.' },
@@ -263,7 +269,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                      array(
                         "condition"=>"state",
                         "entity_id"=>"binary_sensor.".clean($v)."_chauffage",
-                        "state"=>"on"
+                        "state"=>"heat"
                      ),
                   ),
                   "action"=>array(
@@ -462,7 +468,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                   "switches"=>array(
                      "radiateurs_boost"=>array(
                         "friendly_name"=>"Radiateurs boost",
-                        "command_on"=>"curl -g '".$baseurl."&mode=boost²'",
+                        "command_on"=>"curl -g '".$baseurl."&mode=boost'",
                         "command_off"=>"curl -g '".$baseurl."&mode=0'",
                         "command_state"=>"curl -g '".$baseurl."'",
                         "value_template"=>'{{value_json["boost"]}}',
@@ -691,13 +697,13 @@ function clean($string) {
         preg_replace(
           array( '#[\\s-]+#', '#[^A-Za-z0-9. _]+#' ),
           array( '_', '' ),
-          cleanString(
+          cleanStr(
               trim($string)
           )
         )
     );
 }
-function cleanString($text) {
+function cleanStr($text) {
     $utf8 = array(
         '/[áàâãªä]/u'   =>   'a',
         '/[ÁÀÂÃÄ]/u'    =>   'A',
@@ -767,7 +773,7 @@ function f_settings(){
           </ol>
           Les identifiants seront stockés dans le fichier <?php echo $currentFolder.'<strong>tiko.env</strong>';?>
         </form>
-       <?}?>
+       <?php }?>
        <style>
            body { font-family:tahoma }
            label { display:inline-block; width:80px; text-align:right }
