@@ -782,11 +782,6 @@ function f_settings(){
              <div class="code">extension=curl</div>
           </li>';
         }
-        if(!file_get_contents('https://raw.githubusercontent.com/mustangostang/spyc/master/Spyc.php')){
-            $error_feedback .= '<li><strong>Erreur :</strong> le paramètre <strong>allow_url_fopen</strong> n\'est pas activé. Veuillez vous assurez que la ligne suivantes est présente et non commentée dans votre fichier <strong>php.ini</strong>
-             <div class="code">allow_url_fopen = On</div>
-          </li>';
-        }
         if($error_feedback){?>
            <h1>Pré-requis</h1>
            <ol class="border">
@@ -854,4 +849,5 @@ function f_settings(){
   </html>
   <?php
   exit;
-}?>
+}
+?>
