@@ -1,40 +1,27 @@
-<?
-//===================================================================================================
-// TIKO API GATEWAY
-// This component allowing to manage traditional radiators connected via the TIKO solution from within Home Assistant server
-//---------------------------------------------------------------------------------------------------
-// This program has two main functions:
-// a) It'll help to setup Tiko package in your home assistant, by generating tiko.yaml file + related cards
-// b) Serve as endpoint between your Home Assistant and Tiko's API (to update sensors, send commands, etc.)
-// This program need to be hosted for this purpose.
-// 
-// After first use the script will create a tiko.env file in the same directory with credentials & endpoint URL.
-//---------------------------------------------------------------------------------------------------
-// To launch install, go to :
-// https://www.yourdomain.com/tiko.php
-// If you need to reinstall the H.A package, you can access the H.A setup page like this :
-// https://www.yourdomain.com/tiko.php?install=true&hash=ENDPOINT_TOKEN (replace ENDPOINT_TOKEN with value found in tiko.env)
-//---------------------------------------------------------------------------------------------------
-// release date : 2023-03-04
-//===================================================================================================
+<?php
+///////////
+// VARS
+//////////
 
-// Load environnement variables & credentials
+// Charger les variables d'environnement à partir du fichier .env
 $currentFolder = dirname(__FILE__).DIRECTORY_SEPARATOR;
-$config = parse_ini_file($currentFolder.'tiko.env', true);
+
+if(file_exists($currentFolder.'tiko.env'))
+  $config = parse_ini_file($currentFolder.'tiko.env', true);
 
 if ($_REQUEST['enr_ok']) {
    $randomtoken = bin2hex(random_bytes(32));
 
-   // Get current URL
+   // Récupère l'URL de la page en cours
    $url = 'http' . (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
-   // Remove params from URL
+   // Supprime les paramètres de la requête
    $url_without_params = strtok($url, '?');
 
-   // Remove filename to only keep script name
+   // Supprime le nom du fichier pour obtenir l'URL du script
    $script_url = str_replace(basename($_SERVER['SCRIPT_NAME']), '', $url_without_params);
 
-  // Get datas from forml 
+  // Variables récupérées par le formulaire
   $config['tiko_credentials']['TIKO_EMAIL'] = $_POST['email'];
   $config['tiko_credentials']['TIKO_PASSWORD'] = $_POST['password'];
   // Token aléatoire
@@ -52,11 +39,17 @@ if ($_REQUEST['enr_ok']) {
      }
   $put = file_put_contents($currentFolder.'tiko.env', $config_string);
 
-  // Config file is now created, redirect user on setup page
-  header('Location: tiko.php?install=true&hash='.$randomtoken);
+  // recupère la librairie spyc
+  $url = 'https://raw.githubusercontent.com/mustangostang/spyc/master/Spyc.php';
+  $content = file_get_contents($url);
+  // Écriture du contenu dans le fichier local
+  file_put_contents($currentFolder.'spyc.php', $content);
+
+  // Rediriger l'utilisateur vers une page de confirmation ou de succès
+  header('Location: heat.php?install=true&hash='.$randomtoken);
   exit;
 }
-// If credentials's missing, ask to fill them again
+// Si le les variables manquent, demande à l'utilisateur de les saisir
 if (!isset($config['tiko_credentials']['TIKO_EMAIL']) || !isset($config['tiko_credentials']['TIKO_PASSWORD'])) {
    f_settings();
     
@@ -222,8 +215,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
        * INSTALLER, generate the tiko.yaml file
       *****************************************/
       if($_REQUEST["install"]){
-         require($currentFolder."Spyc.php");
-
+         require($currentFolder.'spyc.php');
          $json = '{
             "operationName":"GET_PROPERTY_OVERVIEW_DECENTRALISED",
             "variables":{ "id":'.$account_id.' },
@@ -506,7 +498,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                )
             );
             ////////////////////////////////////
-            // Setup lovelace cards
+            // Prepare les cartes lovelace
             ////////////////////////////////////
             $lovelace = array(
                'type' => 'custom:vertical-stack-in-card',
@@ -543,7 +535,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
             )
          );
 
-         // Loop to add entity from rooms
+         // Boucle pour ajouter chaque entité de thermostat dans le tableau
          foreach($rooms["data"]["property"]["rooms"] as $k=>$v){
              $lovelace['cards'][] = array(
                  'type' => 'divider'
@@ -609,83 +601,91 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                     'suffix' => 'W'
                 )
             )
-         );?>
-         <h1 style="margin-bottom:10px">Pour installer le package TIKO</h1>
-         <div style="margin-bottom: 15px">Via le <strong>File editor</strong> :</div>
-            <ol class="border">
-              <li>Assurez vous que la ligne suivante soit présente dans la section <strong>homeassistant:</strong> dans votre fichier <strong>config/configuration.yaml</strong> :
-                 <div class="code">packages: !include_dir_merge_named packages/</div>
-                 Si ce n'est pas le cas, ajoutez la.
+         );?><!doctype html>
+          <html lang="fr">
+          <head>
+            <meta charset="utf-8">
+            <title>TIKO API Endpoint</title>
+          </head>
+          <body>
+           <h1 style="margin-bottom:10px">Pour installer le package TIKO</h1>
+           <div style="margin-bottom: 15px">Via le <strong>File editor</strong> :</div>
+              <ol class="border">
+                <li>Assurez vous que la ligne suivante soit présente dans la section <strong>homeassistant:</strong> dans votre fichier <strong>config/configuration.yaml</strong> :
+                   <div class="code">packages: !include_dir_merge_named packages/</div>
+                   Si ce n'est pas le cas, ajoutez la.
 
-              </li>
-              <li>Créez un dossier pour le package<br/>
-                 <div class="code">config/packages/<strong>tiko</strong></div>
-                 Si nécessaire, créez également le dossier <strong>packages/</strong>
-              </li>
-              <li>Créez dans le dossier <strong>tiko</strong> un fichier <strong>tiko.yaml</strong><br/>
-                 <div class="code">config/packages/tiko/<strong>tiko.yaml</strong></div>
-              </li>
-              <li>Collez ce code dans le fichier <strong>tiko.yaml</strong><br/>
-                 <textarea style="margin: 10px 0 0;width: 100%; height:350px"><?=spyc_dump($array);?></textarea>
-              </li>
-              <li>Depuis HACS > Frontend, rajoutez les dépendances sur lesquelles se reposent les cartes 
-               <div style="margin:5px 0">
-                  - <strong>Better Thermostat UI :</strong> <a href="https://github.com/KartoffelToby/better-thermostat-ui-card">https://github.com/KartoffelToby/better-thermostat-ui-card</a></a>                     
-               </div>
-               <div style="margin:5px 0">
-                  - <strong>Vertical Stack In Card : </strong> <a href="https://mars.decrocher-la-lune.com:8123/hacs/repository/439367892">https://mars.decrocher-la-lune.com:8123/hacs/repository/439367892</a>
-               </div>
-              </li>
-              <li>Pour gérer vos radiateurs depuis votre dashboard lovelace, editez votre dashboard puis ajoutez une carte en mode manuel, et collez le code suivant dans l'éditeur de cartes :</strong><br/>
-                 <textarea style="margin: 10px 0 0;width: 100%; height:280px"><?=spyc_dump($lovelace);?></textarea>
-              </li>
-              <li>Redémarrez home assistant :<br/>
-                 <div style="margin:3px 0">
-                    - Menu <strong>Settings</strong> > <strong>System</strong>, puis le bouton <strong>RESTART</strong> se trouve dans le coin haut droite de la page
-                  </div>
-              </li>
-            </ol>
-            <style>
-             body { font-family:tahoma }
-             .code { padding:4; margin: 4px 0; background-color:#EEE; font-family:courier }
-               ol.border {
-                list-style-type: none;
-                list-style-type: decimal !ie;     
-                margin: 0;
-                margin-left: 3em;
-                padding: 0;     
-                counter-reset: li-counter;
-            }
+                </li>
+                <li>Créez un dossier pour le package<br/>
+                   <div class="code">config/packages/<strong>tiko</strong></div>
+                   Si nécessaire, créez également le dossier <strong>packages/</strong>
+                </li>
+                <li>Créez dans le dossier <strong>tiko</strong> un fichier <strong>tiko.yaml</strong><br/>
+                   <div class="code">config/packages/tiko/<strong>tiko.yaml</strong></div>
+                </li>
+                <li>Collez ce code dans le fichier <strong>tiko.yaml</strong><br/>
+                   <textarea style="margin: 10px 0 0;width: 100%; height:350px"><?php echo spyc_dump($array);?></textarea>
+                </li>
+                <li>Depuis HACS > Frontend, rajoutez les dépendances sur lesquelles se reposent les cartes 
+                 <div style="margin:5px 0">
+                    - <strong>Better Thermostat UI :</strong> <a href="https://github.com/KartoffelToby/better-thermostat-ui-card">https://github.com/KartoffelToby/better-thermostat-ui-card</a></a>                     
+                 </div>
+                 <div style="margin:5px 0">
+                    - <strong>Vertical Stack In Card : </strong> <a href="https://mars.decrocher-la-lune.com:8123/hacs/repository/439367892">https://mars.decrocher-la-lune.com:8123/hacs/repository/439367892</a>
+                 </div>
+                </li>
+                <li>Pour gérer vos radiateurs depuis votre dashboard lovelace, editez votre dashboard puis ajoutez une carte en mode manuel, et collez le code suivant dans l'éditeur de cartes :</strong><br/>
+                   <textarea style="margin: 10px 0 0;width: 100%; height:280px"><?php echo spyc_dump($lovelace);?></textarea>
+                </li>
+                <li>Redémarrez home assistant :<br/>
+                   <div style="margin:3px 0">
+                      - Menu <strong>Settings</strong> > <strong>System</strong>, puis le bouton <strong>RESTART</strong> se trouve dans le coin haut droite de la page
+                    </div>
+                </li>
+              </ol>
+              <style>
+               body { font-family:tahoma }
+               .code { padding:4; margin: 4px 0; background-color:#EEE; font-family:courier }
+                 ol.border {
+                  list-style-type: none;
+                  list-style-type: decimal !ie;     
+                  margin: 0;
+                  margin-left: 3em;
+                  padding: 0;     
+                  counter-reset: li-counter;
+              }
 
-            ol.border > li{
-                position: relative;
-                margin-bottom: 20px;
-                padding-left: 0.5em;
-                min-height: 3em;
-                border-left: 2px solid #CCCCCC;
-            }
+              ol.border > li{
+                  position: relative;
+                  margin-bottom: 20px;
+                  padding-left: 0.5em;
+                  min-height: 3em;
+                  border-left: 2px solid #CCCCCC;
+              }
 
-            ol.border > li:before {
-                position: absolute;
-                top: 0;
-                left: -1em;
-                width: 0.8em;     
-                font-size: 3em;
-                line-height: 1;
-                font-weight: bold;
-                text-align: right;
-                color: #00796B; 
-                content: counter(li-counter);
-                counter-increment: li-counter;
-            }
-            </style>
-            <?
+              ol.border > li:before {
+                  position: absolute;
+                  top: 0;
+                  left: -1em;
+                  width: 0.8em;     
+                  font-size: 3em;
+                  line-height: 1;
+                  font-weight: bold;
+                  text-align: right;
+                  color: #00796B; 
+                  content: counter(li-counter);
+                  counter-increment: li-counter;
+              }
+              </style>     
+            </body>
+          </html>
+          <?php
       }
       else 
          echo json_encode($feedback);
 }
 
-// Sanitize names
+// functions
 function clean($string) {
     return strtolower(
         preg_replace(
@@ -697,64 +697,116 @@ function clean($string) {
         )
     );
 }
-// Setup form
+function cleanString($text) {
+    $utf8 = array(
+        '/[áàâãªä]/u'   =>   'a',
+        '/[ÁÀÂÃÄ]/u'    =>   'A',
+        '/[ÍÌÎÏ]/u'     =>   'I',
+        '/[íìîï]/u'     =>   'i',
+        '/[éèêë]/u'     =>   'e',
+        '/[ÉÈÊË]/u'     =>   'E',
+        '/[óòôõºö]/u'   =>   'o',
+        '/[ÓÒÔÕÖ]/u'    =>   'O',
+        '/[úùûü]/u'     =>   'u',
+        '/[ÚÙÛÜ]/u'     =>   'U',
+        '/ç/'           =>   'c',
+        '/Ç/'           =>   'C',
+        '/ñ/'           =>   'n',
+        '/Ñ/'           =>   'N',
+        '/–/'           =>   '-', // UTF-8 hyphen to "normal" hyphen
+        '/[’‘‹›‚]/u'    =>   ' ', // Literally a single quote
+        '/[“”«»„]/u'    =>   ' ', // Double quote
+        '/ /'           =>   ' ', // nonbreaking space (equiv. to 0x160)
+    );
+    return trim(preg_replace(array_keys($utf8), array_values($utf8), $text));
+}
+
+// Les variables n'ont pas été définies, afficher un formulaire pour les saisir
 function f_settings(){
    global $PHP_SELF;
    $currentFolder = dirname(__FILE__).DIRECTORY_SEPARATOR;?>
-   <form method="POST" action="<?=$_SELF;?>">
-     <ol class="border">
-        <li>
-            Saisissez vos identifiants TIKO :<br /><br />
-             <input type="hidden" name="enr_ok" value="1">
-             <label for="email">Email:</label>
-             <input type="email" id="email" name="email" required><br><br>
-             
-             <label for="password">Password:</label>
-             <input type="password" id="password" name="password" required><br><br>
-            
-             <label></label>
-             <input type="submit" value="Enregistrer">
-             <br />
+   <!doctype html>
+    <html lang="fr">
+    <head>
+      <meta charset="utf-8">
+      <title>TIKO API Endpoint</title>
+    </head>
+    <body>
+      <?php
+        if (!is_writable($currentFolder)) {
+            $error_feedback = '<li><strong>Erreur </strong>: le dossier <strong>'.$currentFolder.'</strong> n\'est pas autorisé en écriture.</li>';
+        }
+        if(!function_exists('curl_init')){
+            $error_feedback .= '<li><strong>Erreur :</strong> l\'extension <strong>curl</strong> n\'est pas activée. Veuilmez vous assurez que la ligne suivantes est présente et non commentée dans votre fichier <strong>httpd.conf</strong>
+             <div class="code">extension=curl</div>
+          </li>';
+        }
+        if($error_feedback){?>
+           <h1>Pré-requis</h1>
+           <ol class="border">
+            <?php echo $error_feedback;?>
+           </ol>
+        <?}
+        else {?>
+       <form method="POST" action="<?php echo $_SELF;?>">
+         <ol class="border">
+            <li>
+                Saisissez vos identifiants TIKO :<br /><br />
+                 <input type="hidden" name="enr_ok" value="1">
+                 <label for="email">Email:</label>
+                 <input type="email" id="email" name="email" required><br><br>
+                 
+                 <label for="password">Password:</label>
+                 <input type="password" id="password" name="password" required><br><br>
+                
+                 <label></label>
+                 <input type="submit" value="Enregistrer">
+                 <br />
 
-        </li>
-      </ol>
-      Les identifiants seront stockés dans le fichier <?=$currentFolder.'<strong>tiko.env</strong>';?>
-  </form>
-   <style>
-       body { font-family:tahoma }
-       label { display:inline-block; width:80px; text-align:right }
+            </li>
+          </ol>
+          Les identifiants seront stockés dans le fichier <?php echo $currentFolder.'<strong>tiko.env</strong>';?>
+        </form>
+       <?}?>
+       <style>
+           body { font-family:tahoma }
+           label { display:inline-block; width:80px; text-align:right }
+           .code { padding:4; margin: 4px 0; background-color:#EEE; font-family:courier }
 
-       ol.border {
-          list-style-type: none;
-          list-style-type: decimal !ie;     
-          margin: 0;
-          margin-left: 3em;
-          padding: 0;     
-          counter-reset: li-counter;
-      }
+           ol.border {
+              list-style-type: none;
+              list-style-type: decimal !ie;     
+              margin: 0;
+              margin-left: 3em;
+              padding: 0;     
+              counter-reset: li-counter;
+          }
 
-      ol.border > li{
-          position: relative;
-          margin-bottom: 20px;
-          padding-left: 0.5em;
-          min-height: 3em;
-          border-left: 2px solid #CCCCCC;
-      }
+          ol.border > li{
+              position: relative;
+              margin-bottom: 20px;
+              padding-left: 0.5em;
+              min-height: 3em;
+              border-left: 2px solid #CCCCCC;
+          }
 
-      ol.border > li:before {
-          position: absolute;
-          top: 0;
-          left: -1em;
-          width: 0.8em;     
-          font-size: 3em;
-          line-height: 1;
-          font-weight: bold;
-          text-align: right;
-          color: #00796B; 
-          content: counter(li-counter);
-          counter-increment: li-counter;
-      }
-      </style> 
+          ol.border > li:before {
+              position: absolute;
+              top: 0;
+              left: -1em;
+              width: 0.8em;     
+              font-size: 3em;
+              line-height: 1;
+              font-weight: bold;
+              text-align: right;
+              color: #00796B; 
+              content: counter(li-counter);
+              counter-increment: li-counter;
+          }
+          </styl
+      </body>
+  </html>
   <?php
   exit;
-}?>
+}
+?>
