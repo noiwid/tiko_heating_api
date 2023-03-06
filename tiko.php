@@ -47,7 +47,7 @@ if ($_REQUEST['enr_ok']) {
   file_put_contents($currentFolder.'spyc.php', $content);
 
   // Rediriger l'utilisateur vers une page de confirmation ou de succès
-  header('Location: heat.php?install=true&hash='.$randomtoken);
+  header('Location: tiko.php?install=true&hash='.$randomtoken);
   exit;
 }
 // Si le les variables manquent, demande à l'utilisateur de les saisir
