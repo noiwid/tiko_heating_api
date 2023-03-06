@@ -10,8 +10,11 @@
 // 
 // After first use the script will create a tiko.env file in the same directory with credentials & endpoint URL.
 //---------------------------------------------------------------------------------------------------
-// The setup page can be access like this :
-// http://www.yourdomain.com/heat.php?install=true&hash=ENDPOINT_TOKEN (replace ENDPOINT_TOKEN with value found in tiko.env)
+// To launch install:
+// https://www.yourdomain.com/tiko.php
+// 
+// To access setup page after installation:
+// https://www.yourdomain.com/tiko.php?install=true&hash=ENDPOINT_TOKEN (replace ENDPOINT_TOKEN with value found in tiko.env)
 //---------------------------------------------------------------------------------------------------
 // release date : 2023-03-04
 //===================================================================================================
