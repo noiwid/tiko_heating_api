@@ -10,6 +10,7 @@ Ce programme doit être hébergé et accessible en ligne pour que votre serveur 
 Il utilise la librairie Spyc (https://github.com/mustangostang/spyc) qui permet de convertir des tableaux PHP en YAML, cette librairie (spyc.php) sera automatiquement téléchargée depuis github pendant l'installation, et copiée dans le même dossier que le fichier tiko.php.
 
 Après la première utilisation, le script créera un fichier tiko.env dans le même répertoire avec les informations d'identification et l'URL de l'endpoint.
+Vérifier que la variable ENDPOINT_URL contient bien l'url d'accès à votre script (ex : https://mon.i.p/tiko.php)
 
 La page de configuration peut être accédée comme ceci :
 http://www.votredomaine.com/tiko.php?install=true&hash=ENDPOINT_TOKEN (remplacez ENDPOINT_TOKEN par la valeur trouvée dans tiko.env)
@@ -30,9 +31,10 @@ This program need to be hosted for this purpose.
 It use Spyc library (https://github.com/mustangostang/spyc) that convert PHP array to YAML, this lib (spyc.php) will automaticly downloaded in the same folder as main script.
 
 After first use the script will create a tiko.env file in the same directory with credentials & endpoint URL.
+Check the ENDPOINT_URL variable, it should contain your script URL (ex : https://www.yourdomain.com/tiko.php)
 
 The setup page can be access like this :
-http://www.yourdomain.com/tiko.php?install=true&hash=ENDPOINT_TOKEN (replace ENDPOINT_TOKEN with value found in tiko.env)
+https://www.yourdomain.com/tiko.php?install=true&hash=ENDPOINT_TOKEN (replace ENDPOINT_TOKEN with value found in tiko.env)
 
 Lovelace card's preview : 
 https://community.jeedom.com/uploads/default/original/3X/f/2/f2b58b1243929012af284ff6c9c3778923484686.png
