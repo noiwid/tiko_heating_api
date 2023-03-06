@@ -16,6 +16,7 @@ La page de configuration peut être accédée comme ceci :
 http://www.votredomaine.com/tiko.php?install=true&hash=ENDPOINT_TOKEN (remplacez ENDPOINT_TOKEN par la valeur trouvée dans tiko.env)
 
 Preview de l'integration dans lovelace :
+
 ![alt text](https://community.jeedom.com/uploads/default/original/3X/f/2/f2b58b1243929012af284ff6c9c3778923484686.png)
 
 
