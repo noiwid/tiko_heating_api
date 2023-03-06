@@ -829,7 +829,7 @@ function f_settings(){
               content: counter(li-counter);
               counter-increment: li-counter;
           }
-          </styl
+      </style>
       </body>
   </html>
   <?php
