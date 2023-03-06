@@ -37,10 +37,6 @@ Check the ENDPOINT_URL variable, it should contain your script URL (ex : https:/
 The setup page can be access like this :
 https://www.yourdomain.com/tiko.php?install=true&hash=ENDPOINT_TOKEN (replace ENDPOINT_TOKEN with value found in tiko.env)
 
-Lovelace card's preview : 
-![alt text](https://community.jeedom.com/uploads/default/original/3X/f/2/f2b58b1243929012af284ff6c9c3778923484686.png)
-
-
 ##==========================================================================
 
 Release date : 2023-03-04
