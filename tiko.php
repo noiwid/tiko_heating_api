@@ -16,7 +16,8 @@
 // To access setup page after installation:
 // https://www.yourdomain.com/tiko.php?install=true&hash=ENDPOINT_TOKEN (replace ENDPOINT_TOKEN with value found in tiko.env)
 //---------------------------------------------------------------------------------------------------
-// release date : 2023-03-04
+// v1     release date : 2023-03-04
+// v1.4   release date : 2023-03-08
 //===================================================================================================
 
 /*
@@ -396,6 +397,17 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                         "value_template" => "{{ state_attr('sensor.tiko_settings','".clean($v)."_cur')}}",
                         "unit_of_measurement" => "°C",
                         "device_class" => "temperature"
+                     )
+                  )
+               );
+               $array["tiko"]["sensor"][] = array(
+                  "platform"=>"template",
+                  "sensors"=>array(
+                     clean($v)."_humidity" => array(
+                        "friendly_name" => $v." humidité",
+                        "value_template" => "{{ state_attr('sensor.tiko_settings','".clean($v)."_dry')}}",
+                        "unit_of_measurement" => "%",
+                        "device_class" => "humidity"
                      )
                   )
                );
@@ -850,7 +862,5 @@ function f_settings(){
           </styl
       </body>
   </html>
-  <?php
-  exit;
-}
-?>
+  <?php exit;
+}?>
