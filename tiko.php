@@ -18,7 +18,9 @@
 //---------------------------------------------------------------------------------------------------
 // v1     release date : 2023-03-04
 // v1.4   release date : 2023-03-08
-//===================================================================================================
+// v1.41  release date : 2023-04-10 - new sensor added with consumption difference in % (today vs last month same day)
+// v1.5   release date : 2023-06-12 - command_line sensors & switchs moved to separate section (to fit 2023.8 upcoming requirements) + minor bugfixes
+//=====================================================================================================================
 
 /*
 DEBUG MODE
@@ -256,8 +258,30 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                $my_sensors[] = clean($v["name"])."_on";
             }
 
+/*  template:
+    - sensor:
+      - name: "Tiko consommation radiateurs"
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total
+        state: >-
+          {{ state_attr('sensor.tiko_consumption', 'this_month_total_wh') }}
+*/
+         /*$array["tiko"]["template"][] = array(
+            "sensor"=>array(
+               array(
+                  "name"=>"Tiko consommation radiateurs",
+                  "unit_of_measurement"=>"kWh",
+                  "device_class"=>"energy",
+                  "state_class"=>"total",
+                  "state"=>"{{ state_attr('sensor.tiko_consumption', 'this_month_total_wh')|float }}"
+               )
+            )
+
+         );*/
          if(is_array($heaters))
             foreach($heaters as $k=>$v){
+
                $array["tiko"]["climate"][] = array(
                   "platform"=>"generic_thermostat",
                   "name"=>$v,
@@ -370,7 +394,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                         ),
                         array(
                            "condition"=>"state",
-                           "entity_id"=>"switch.radiateurs_horsgel",
+                           "entity_id"=>"switch.radiateurs_hors_gel",
                            "state"=>"off"
                         ),
                         array(
@@ -389,6 +413,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                   "mode"=>"single",
 
                );
+
                $array["tiko"]["sensor"][] = array(
                   "platform"=>"template",
                   "sensors"=>array(
@@ -434,100 +459,105 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                   )
                );
             } // end foreach
-            $array["tiko"]["sensor"][] = array(
-               "platform"=>"command_line",
-               "name"=>"Tiko_consumption",
-               "json_attributes"=>array(
-                  0 => "today_total_wh",
-                  1 => "yesterday_total_same_time_wh",
-                  2 => "yesterday_total_same_time_wh",
-                  3 => "last_month_total_wh",
-                  4 => "this_month_total_wh",
-                  5 => "last_month_total_same_day_wh"
-               ),
-               "command" => "curl -s '".$baseurl."&consumption=true'",
-               "unit_of_measurement" => "W",
-               "scan_interval" => 3600,
-               "value_template" => 1
-            );
-            $array["tiko"]["sensor"][] = array(
-               "platform"=>"command_line",
-               "name"=>"Tiko_settings",
-               "json_attributes"=> 
-                  $my_sensors,
-               "command" => "curl -s '".$baseurl."'",
-               "scan_interval" => 60,
-               "value_template" => 1
-            );
-
-
-            $array["tiko"]["switch"] = array(
-               array(
-                  "platform"=>"command_line",
-                  "switches"=>array(
-                     "radiateurs_on_off"=>array(
-                        "friendly_name"=>"Radiateurs on/off",
-                        "command_on"=>"curl -g '".$baseurl."&mode=0'",
-                        "command_off"=>"curl -g '".$baseurl."&mode=disableHeating'",
-                        "command_state"=>"curl -g '".$baseurl."'",
-                        "value_template"=>'{{value_json["disableHeating"]}}',
-                        "icon_template"=>"{% if (value_json.disableHeating) %} mdi:radiator-off {% else %} mdi:radiator-off {% endif %}",
-                     )
-                  )
-               ),
-               array(
-                  "platform"=>"command_line",
-                  "switches"=>array(
-                     "radiateurs_off"=>array(
-                        "friendly_name"=>"Radiateurs off",
-                        "command_on"=>"curl -g '".$baseurl."&mode=disableHeating'",
-                        "command_off"=>"curl -g '".$baseurl."&mode=0'",
-                        "command_state"=>"curl -g '".$baseurl."'",
-                        "value_template"=>'{{value_json["disableHeating"]}}',
-                        "icon_template"=>"{% if (value_json.disableHeating) %} mdi:radiator-off {% else %} mdi:radiator-off {% endif %}",
-                     )
-                  )
-               ),
-               array(
-                  "platform"=>"command_line",
-                  "switches"=>array(
-                     "radiateurs_boost"=>array(
-                        "friendly_name"=>"Radiateurs boost",
-                        "command_on"=>"curl -g '".$baseurl."&mode=boost'",
-                        "command_off"=>"curl -g '".$baseurl."&mode=0'",
-                        "command_state"=>"curl -g '".$baseurl."'",
-                        "value_template"=>'{{value_json["boost"]}}',
-                        "icon_template"=>"{% if (value_json.boost) %} mdi:sun-thermometer {% else %} mdi:lightning-bolt-outline {% endif %}",
-                     )
-                  )
-               ),
-               array(
-                  "platform"=>"command_line",
-                  "switches"=>array(
-                     "radiateurs_absence"=>array(
-                        "friendly_name"=>"Radiateurs absence",
-                        "command_on"=>"curl -g '".$baseurl."&mode=absence'",
-                        "command_off"=>"curl -g '".$baseurl."&mode=0'",
-                        "command_state"=>"curl -g '".$baseurl."'",
-                        "value_template"=>'{{value_json["absence"]}}',
-                        "icon_template"=>"{% if (value_json.absence) %} mdi:door-closed-lock {% else %} mdi:door {% endif %}",
-                     )
-                  )
-               ),
-               array(
-                  "platform"=>"command_line",
-                  "switches"=>array(
-                     "radiateurs_horsgel"=>array(
-                        "friendly_name"=>"Radiateurs hors gel",
-                        "command_on"=>"curl -g '".$baseurl."&mode=frost'",
-                        "command_off"=>"curl -g '".$baseurl."&mode=0'",
-                        "command_state"=>"curl -g '".$baseurl."'",
-                        "value_template"=>'{{value_json["frost"]}}',
-                        "icon_template"=>"{% if (value_json.frost) %} mdi:snowflake-thermometer {% else %} mdi:snowflake-thermometer {% endif %}",
-                     )
-                  )
+            $array["tiko"]["command_line"][] = array(
+               "sensor"=>array(
+                 "name"=>"Tiko_consumption",
+                 "json_attributes"=>array(
+                    0 => "today_total_wh",
+                    1 => "yesterday_total_same_time_wh",
+                    2 => "yesterday_total_same_time_wh",
+                    3 => "last_month_total_wh",
+                    4 => "this_month_total_wh",
+                    5 => "last_month_total_same_day_wh"
+                 ),
+                 "command" => "curl -s '".$baseurl."&consumption=true'",
+                 "unit_of_measurement" => "W",
+                 "scan_interval" => 3600,
+                 "value_template" => 1
                )
             );
+
+            $array["tiko"]["command_line"][] = array(
+               "sensor"=>array(
+                 "name"=>"Tiko_settings",
+                 "json_attributes"=> 
+                    $my_sensors,
+                 "command" => "curl -s '".$baseurl."'",
+                 "scan_interval" => 60,
+                 "value_template" => 1
+                )
+            );
+            $array["tiko"]["command_line"][] = array(
+              "switch"=>array(
+                  "name"=>"Radiateurs on/off",
+                  "command_on"=>"curl -g '".$baseurl."&mode=0'",
+                  "command_off"=>"curl -g '".$baseurl."&mode=disableHeating'",
+                  "command_state"=>"curl -g '".$baseurl."'",
+                  "value_template"=>'{{value_json["disableHeating"]}}',
+                  "icon"=>"{% if (value_json.disableHeating) %} mdi:radiator-off {% else %} mdi:radiator-off {% endif %}"
+                )
+            );
+            $array["tiko"]["command_line"][] = array(
+              "switch"=>array(
+                  "name"=>"Radiateurs off",
+                  "command_on"=>"curl -g '".$baseurl."&mode=disableHeating'",
+                  "command_off"=>"curl -g '".$baseurl."&mode=0'",
+                  "command_state"=>"curl -g '".$baseurl."'",
+                  "value_template"=>'{{value_json["disableHeating"]}}',
+                  "icon"=>"{% if (value_json.disableHeating) %} mdi:radiator-off {% else %} mdi:radiator-off {% endif %}",
+                )
+            );
+            $array["tiko"]["command_line"][] = array(
+              "switch"=>array(
+                  "name"=>"Radiateurs boost",
+                  "command_on"=>"curl -g '".$baseurl."&mode=boost'",
+                  "command_off"=>"curl -g '".$baseurl."&mode=0'",
+                  "command_state"=>"curl -g '".$baseurl."'",
+                  "value_template"=>'{{value_json["boost"]}}',
+                  "icon"=>"{% if (value_json.boost) %} mdi:sun-thermometer {% else %} mdi:lightning-bolt-outline {% endif %}",
+                )
+            );
+            $array["tiko"]["command_line"][] = array(
+              "switch"=>array(
+                  "name"=>"Radiateurs absence",
+                  "command_on"=>"curl -g '".$baseurl."&mode=absence'",
+                  "command_off"=>"curl -g '".$baseurl."&mode=0'",
+                  "command_state"=>"curl -g '".$baseurl."'",
+                  "value_template"=>'{{value_json["absence"]}}',
+                  "icon"=>"{% if (value_json.absence) %} mdi:door-closed-lock {% else %} mdi:door {% endif %}",
+                )
+            );
+            $array["tiko"]["command_line"][] = array(
+              "switch"=>array(
+                  "name"=>"Radiateurs hors gel",
+                  "command_on"=>"curl -g '".$baseurl."&mode=frost'",
+                  "command_off"=>"curl -g '".$baseurl."&mode=0'",
+                  "command_state"=>"curl -g '".$baseurl."'",
+                  "value_template"=>'{{value_json["frost"]}}',
+                  "icon"=>"{% if (value_json.frost) %} mdi:snowflake-thermometer {% else %} mdi:snowflake-thermometer {% endif %}",
+              )
+            );
+           $array["tiko"]["sensor"][] = array(
+              "platform"=>"template",
+              "sensors"=>array(
+                 "tiko_consumption_vs_lastmonth" => array(
+                    "friendly_name" => "Écart conso. vs mois dernier",
+                    "value_template" => "{{ (((state_attr('sensor.tiko_consumption', 'this_month_total_wh') - state_attr('sensor.tiko_consumption', 'last_month_total_same_day_wh')) / state_attr('sensor.tiko_consumption', 'last_month_total_same_day_wh')) * 100)|round(0) }}",
+                    "unit_of_measurement" => "%"
+                 )
+              )
+           );
+           $array["tiko"]["sensor"][] = array(
+              "platform"=>"template",
+              "sensors"=>array(
+                 "tiko_consumption_vs_yesterday" => array(
+                    "friendly_name" => "Écart conso. vs hier",
+                    "value_template" => "{{ (((state_attr('sensor.tiko_consumption', 'today_total_wh') - state_attr('sensor.tiko_consumption', 'yesterday_total_same_time_wh')) / state_attr('sensor.tiko_consumption', 'yesterday_total_same_time_wh')) * 100)|round(0) }}",
+                    "unit_of_measurement" => "%"
+                 )
+              )
+           );
+
             ////////////////////////////////////
             // Prepare les cartes lovelace
             ////////////////////////////////////
@@ -543,7 +573,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                           'name' => 'Arrêt chauffage'
                       ),
                       array(
-                          'entity' => 'switch.radiateurs_horsgel',
+                          'entity' => 'switch.radiateurs_hors_gel',
                           'state_color' => true,
                           'name' => 'Mode Hors gel'
                       ),
@@ -600,13 +630,26 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                     'suffix' => 'W'
                 ),
                 array(
-                    'entity' => 'sensor.tiko_consumption',
-                    'name' => 'Hier à la même heure',
-                    'icon' => 'mdi:calendar-today-outline',
-                    'type' => 'attribute',
-                    'attribute' => 'yesterday_total_same_time_wh',
-                    'suffix' => 'W'
-                ),
+                    'entity' => 'sensor.tiko_consumption_vs_yesterday',
+                    'name' => 'Écart conso. vs hier',
+                    'icon' => 'mdi:compare-horizontal',
+                    'suffix' => '%',
+                    'card_mod' => NULL,
+                    'style' => ":host {
+        color:
+          {% if states('sensor.tiko_consumption_vs_yesterday') | int <= -20 %} 
+            green
+          {% elif states('sensor.tiko_consumption_vs_yesterday') | int <= -10 %}
+            greenyellow
+          {% elif states('sensor.tiko_consumption_vs_yesterday') | int <= 0 %}
+            black
+          {% elif states('sensor.tiko_consumption_vs_yesterday') | int <= 10 %}
+            orange
+          {% elif states('sensor.tiko_consumption_vs_yesterday') | int > 10 %}
+            red
+          {% endif %}
+          ;
+      }"),
                 array(
                     'entity' => 'sensor.tiko_consumption',
                     'name' => 'Ce mois ci',
@@ -616,19 +659,32 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                     'suffix' => 'W'
                 ),
                 array(
+                    'entity' => 'sensor.tiko_consumption_vs_lastmonth',
+                    'name' => 'Écart conso. vs mois dernier',
+                    'icon' => 'mdi:compare-horizontal',
+                    'suffix' => '%',
+                    'card_mod' => NULL,
+                    'style' => ":host {
+        color:
+          {% if states('sensor.tiko_consumption_vs_lastmonth') | int <= -20 %} 
+            green
+          {% elif states('sensor.tiko_consumption_vs_lastmonth') | int <= -10 %}
+            greenyellow
+          {% elif states('sensor.tiko_consumption_vs_lastmonth') | int <= 0 %}
+            black
+          {% elif states('sensor.tiko_consumption_vs_lastmonth') | int <= 10 %}
+            orange
+          {% elif states('sensor.tiko_consumption_vs_lastmonth') | int > 10 %}
+            red
+          {% endif %}
+          ;
+      }"),
+                array(
                     'entity' => 'sensor.tiko_consumption',
                     'name' => 'Le mois dernier',
                     'icon' => 'mdi:calendar-month-outline',
                     'type' => 'attribute',
                     'attribute' => 'last_month_total_wh',
-                    'suffix' => 'W'
-                ),
-                array(
-                    'entity' => 'sensor.tiko_consumption',
-                    'name' => 'Le même jour le mois dernier',
-                    'icon' => 'mdi:compare-horizontal',
-                    'type' => 'attribute',
-                    'attribute' => 'last_month_total_same_day_wh',
                     'suffix' => 'W'
                 )
             )
