@@ -16,11 +16,12 @@
 // To access setup page after installation:
 // https://www.yourdomain.com/tiko.php?install=true&hash=ENDPOINT_TOKEN (replace ENDPOINT_TOKEN with value found in tiko.env)
 //---------------------------------------------------------------------------------------------------
-// v1     release date : 2023-03-04
-// v1.4   release date : 2023-03-08
-// v1.41  release date : 2023-04-10 - new sensor added with consumption difference in % (today vs last month same day)
-// v1.5   release date : 2023-06-12 - command_line sensors & switchs moved to separate section (to fit 2023.8 upcoming requirements) + minor bugfixes
-//=====================================================================================================================
+// v1      release date : 2023-03-04
+// v1.4    release date : 2023-03-08
+// v1.4.1  release date : 2023-04-10 - new sensor added with consumption difference in % (today vs last month same day)
+// v1.5    release date : 2023-06-12 - command_line sensors & switchs moved to separate section (to fit 2023.8 upcoming requirements) + minor bugfixes
+// v1.5.1  release date : 2023-06-21 - fix warnings when no history data is provided + extend scan_interval to 60 seconds
+//====================================================================================================================================================
 
 /*
 DEBUG MODE
@@ -258,27 +259,6 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                $my_sensors[] = clean($v["name"])."_on";
             }
 
-/*  template:
-    - sensor:
-      - name: "Tiko consommation radiateurs"
-        unit_of_measurement: "kWh"
-        device_class: energy
-        state_class: total
-        state: >-
-          {{ state_attr('sensor.tiko_consumption', 'this_month_total_wh') }}
-*/
-         /*$array["tiko"]["template"][] = array(
-            "sensor"=>array(
-               array(
-                  "name"=>"Tiko consommation radiateurs",
-                  "unit_of_measurement"=>"kWh",
-                  "device_class"=>"energy",
-                  "state_class"=>"total",
-                  "state"=>"{{ state_attr('sensor.tiko_consumption', 'this_month_total_wh')|float }}"
-               )
-            )
-
-         );*/
          if(is_array($heaters))
             foreach($heaters as $k=>$v){
 
@@ -494,6 +474,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                   "command_off"=>"curl -g '".$baseurl."&mode=disableHeating'",
                   "command_state"=>"curl -g '".$baseurl."'",
                   "value_template"=>'{{value_json["disableHeating"]}}',
+                  "scan_interval" => 60,
                   "icon"=>"{% if (value_json.disableHeating) %} mdi:radiator-off {% else %} mdi:radiator-off {% endif %}"
                 )
             );
@@ -504,6 +485,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                   "command_off"=>"curl -g '".$baseurl."&mode=0'",
                   "command_state"=>"curl -g '".$baseurl."'",
                   "value_template"=>'{{value_json["disableHeating"]}}',
+                  "scan_interval" => 60,
                   "icon"=>"{% if (value_json.disableHeating) %} mdi:radiator-off {% else %} mdi:radiator-off {% endif %}",
                 )
             );
@@ -514,6 +496,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                   "command_off"=>"curl -g '".$baseurl."&mode=0'",
                   "command_state"=>"curl -g '".$baseurl."'",
                   "value_template"=>'{{value_json["boost"]}}',
+                  "scan_interval" => 60,
                   "icon"=>"{% if (value_json.boost) %} mdi:sun-thermometer {% else %} mdi:lightning-bolt-outline {% endif %}",
                 )
             );
@@ -524,6 +507,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                   "command_off"=>"curl -g '".$baseurl."&mode=0'",
                   "command_state"=>"curl -g '".$baseurl."'",
                   "value_template"=>'{{value_json["absence"]}}',
+                  "scan_interval" => 60,
                   "icon"=>"{% if (value_json.absence) %} mdi:door-closed-lock {% else %} mdi:door {% endif %}",
                 )
             );
@@ -534,29 +518,30 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                   "command_off"=>"curl -g '".$baseurl."&mode=0'",
                   "command_state"=>"curl -g '".$baseurl."'",
                   "value_template"=>'{{value_json["frost"]}}',
+                  "scan_interval" => 60,
                   "icon"=>"{% if (value_json.frost) %} mdi:snowflake-thermometer {% else %} mdi:snowflake-thermometer {% endif %}",
               )
             );
-           $array["tiko"]["sensor"][] = array(
-              "platform"=>"template",
-              "sensors"=>array(
-                 "tiko_consumption_vs_lastmonth" => array(
-                    "friendly_name" => "Écart conso. vs mois dernier",
-                    "value_template" => "{{ (((state_attr('sensor.tiko_consumption', 'this_month_total_wh') - state_attr('sensor.tiko_consumption', 'last_month_total_same_day_wh')) / state_attr('sensor.tiko_consumption', 'last_month_total_same_day_wh')) * 100)|round(0) }}",
-                    "unit_of_measurement" => "%"
-                 )
-              )
-           );
-           $array["tiko"]["sensor"][] = array(
-              "platform"=>"template",
-              "sensors"=>array(
-                 "tiko_consumption_vs_yesterday" => array(
-                    "friendly_name" => "Écart conso. vs hier",
-                    "value_template" => "{{ (((state_attr('sensor.tiko_consumption', 'today_total_wh') - state_attr('sensor.tiko_consumption', 'yesterday_total_same_time_wh')) / state_attr('sensor.tiko_consumption', 'yesterday_total_same_time_wh')) * 100)|round(0) }}",
-                    "unit_of_measurement" => "%"
-                 )
-              )
-           );
+            $array["tiko"]["sensor"][] = array(
+                "platform"=>"template",
+                "sensors"=>array(
+                    "tiko_consumption_vs_lastmonth" => array(
+                        "friendly_name" => "Écart conso. vs mois dernier",
+                        "value_template" => "{% set last_month_value = state_attr('sensor.tiko_consumption', 'last_month_total_same_day_wh') %} {{ (((state_attr('sensor.tiko_consumption', 'this_month_total_wh') - last_month_value) / last_month_value) * 100)|round(0) if last_month_value != 0 else 0 }}",
+                        "unit_of_measurement" => "%"
+                    )
+                )
+            );
+            $array["tiko"]["sensor"][] = array(
+                "platform"=>"template",
+                "sensors"=>array(
+                    "tiko_consumption_vs_yesterday" => array(
+                        "friendly_name" => "Écart conso. vs hier",
+                        "value_template" => "{% set yesterday_value = state_attr('sensor.tiko_consumption', 'yesterday_total_same_time_wh') %} {{ (((state_attr('sensor.tiko_consumption', 'today_total_wh') - yesterday_value) / yesterday_value) * 100)|round(0) if yesterday_value != 0 else 0 }}",
+                        "unit_of_measurement" => "%"
+                    )
+                )
+            );
 
             ////////////////////////////////////
             // Prepare les cartes lovelace
