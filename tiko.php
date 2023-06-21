@@ -30,7 +30,9 @@ ini_set('display_errors', '1');
 $enable_logs = true;
 */
 
-// Load environnement variables & credentials<?php
+// Load environnement variables & credentials
+
+<?php
 $currentFolder = dirname(__FILE__).DIRECTORY_SEPARATOR;
 
 if(file_exists($currentFolder.'tiko.env'))
