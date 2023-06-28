@@ -269,7 +269,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                   "heater"=>"switch.radiateurs_on_off",
                   "target_sensor"=>"sensor.".clean($v)."_temperature"
                );
-               $array["shell_command"][clean($v)."_set_temp"] = '/usr/bin/curl -X POST '.$baseurl.'&room_id='.$k.'&temperature={{ state_attr("climate.'.clean($v).'", "temperature") }}';
+               $array["shell_command"][clean($v)."_set_temp"] = '/usr/bin/curl -k -X POST '.$baseurl.'&room_id='.$k.'&temperature={{ state_attr("climate.'.clean($v).'", "temperature") }}';
                $array["automation"][] = array(
                   "id"=>"sync_status_on_".clean($v),
                   "alias"=>"sync_status_on_".clean($v),
@@ -451,7 +451,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                     4 => "this_month_total_wh",
                     5 => "last_month_total_same_day_wh"
                  ),
-                 "command" => "/usr/bin/curl -s '".$baseurl."&consumption=true'",
+                 "command" => "/usr/bin/curl -k -s '".$baseurl."&consumption=true'",
                  "unit_of_measurement" => "W",
                  "scan_interval" => 3600,
                  "value_template" => 1
@@ -463,7 +463,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                  "name"=>"Tiko_settings",
                  "json_attributes"=> 
                     $my_sensors,
-                 "command" => "/usr/bin/curl -s '".$baseurl."'",
+                 "command" => "/usr/bin/curl -k -s '".$baseurl."'",
                  "scan_interval" => 60,
                  "value_template" => 1
                 )
@@ -471,9 +471,9 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
             $array["command_line"][] = array(
               "switch"=>array(
                   "name"=>"Radiateurs on/off",
-                  "command_on"=>"/usr/bin/curl -g '".$baseurl."&mode=0'",
-                  "command_off"=>"/usr/bin/curl -g '".$baseurl."&mode=disableHeating'",
-                  "command_state"=>"/usr/bin/curl -g '".$baseurl."'",
+                  "command_on"=>"/usr/bin/curl -k -g '".$baseurl."&mode=0'",
+                  "command_off"=>"/usr/bin/curl -k -g '".$baseurl."&mode=disableHeating'",
+                  "command_state"=>"/usr/bin/curl -k -g '".$baseurl."'",
                   "value_template"=>'{{value_json["disableHeating"]}}',
                   "scan_interval" => 60,
                   "icon"=>"{% if (value_json.disableHeating) %} mdi:radiator-off {% else %} mdi:radiator-off {% endif %}"
@@ -482,9 +482,9 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
             $array["command_line"][] = array(
               "switch"=>array(
                   "name"=>"Radiateurs off",
-                  "command_on"=>"/usr/bin/curl -g '".$baseurl."&mode=disableHeating'",
-                  "command_off"=>"/usr/bin/curl -g '".$baseurl."&mode=0'",
-                  "command_state"=>"/usr/bin/curl -g '".$baseurl."'",
+                  "command_on"=>"/usr/bin/curl -k -g '".$baseurl."&mode=disableHeating'",
+                  "command_off"=>"/usr/bin/curl -k -g '".$baseurl."&mode=0'",
+                  "command_state"=>"/usr/bin/curl -k -g '".$baseurl."'",
                   "value_template"=>'{{value_json["disableHeating"]}}',
                   "scan_interval" => 60,
                   "icon"=>"{% if (value_json.disableHeating) %} mdi:radiator-off {% else %} mdi:radiator-off {% endif %}",
@@ -493,9 +493,9 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
             $array["command_line"][] = array(
               "switch"=>array(
                   "name"=>"Radiateurs boost",
-                  "command_on"=>"/usr/bin/curl -g '".$baseurl."&mode=boost'",
-                  "command_off"=>"/usr/bin/curl -g '".$baseurl."&mode=0'",
-                  "command_state"=>"/usr/bin/curl -g '".$baseurl."'",
+                  "command_on"=>"/usr/bin/curl -k -g '".$baseurl."&mode=boost'",
+                  "command_off"=>"/usr/bin/curl -k -g '".$baseurl."&mode=0'",
+                  "command_state"=>"/usr/bin/curl -k -g '".$baseurl."'",
                   "value_template"=>'{{value_json["boost"]}}',
                   "scan_interval" => 60,
                   "icon"=>"{% if (value_json.boost) %} mdi:sun-thermometer {% else %} mdi:lightning-bolt-outline {% endif %}",
@@ -504,9 +504,9 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
             $array["command_line"][] = array(
               "switch"=>array(
                   "name"=>"Radiateurs absence",
-                  "command_on"=>"/usr/bin/curl -g '".$baseurl."&mode=absence'",
-                  "command_off"=>"/usr/bin/curl -g '".$baseurl."&mode=0'",
-                  "command_state"=>"/usr/bin/curl -g '".$baseurl."'",
+                  "command_on"=>"/usr/bin/curl -k -g '".$baseurl."&mode=absence'",
+                  "command_off"=>"/usr/bin/curl -k -g '".$baseurl."&mode=0'",
+                  "command_state"=>"/usr/bin/curl -k -g '".$baseurl."'",
                   "value_template"=>'{{value_json["absence"]}}',
                   "scan_interval" => 60,
                   "icon"=>"{% if (value_json.absence) %} mdi:door-closed-lock {% else %} mdi:door {% endif %}",
@@ -515,9 +515,9 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
             $array["command_line"][] = array(
               "switch"=>array(
                   "name"=>"Radiateurs hors gel",
-                  "command_on"=>"/usr/bin/curl -g '".$baseurl."&mode=frost'",
-                  "command_off"=>"/usr/bin/curl -g '".$baseurl."&mode=0'",
-                  "command_state"=>"/usr/bin/curl -g '".$baseurl."'",
+                  "command_on"=>"/usr/bin/curl -k -g '".$baseurl."&mode=frost'",
+                  "command_off"=>"/usr/bin/curl -k -g '".$baseurl."&mode=0'",
+                  "command_state"=>"/usr/bin/curl -k -g '".$baseurl."'",
                   "value_template"=>'{{value_json["frost"]}}',
                   "scan_interval" => 60,
                   "icon"=>"{% if (value_json.frost) %} mdi:snowflake-thermometer {% else %} mdi:snowflake-thermometer {% endif %}",
