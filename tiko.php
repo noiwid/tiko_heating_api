@@ -1,4 +1,4 @@
-<?
+<?php
 //===================================================================================================
 // TIKO API GATEWAY
 // This component allowing to manage traditional radiators connected via the TIKO solution from within Home Assistant server
@@ -21,6 +21,7 @@
 // v1.4.1  release date : 2023-04-10 - new sensor added with consumption difference in % (today vs last month same day)
 // v1.5    release date : 2023-06-12 - command_line sensors & switchs moved to separate section (to fit 2023.8 upcoming requirements) + minor bugfixes
 // v1.5.1  release date : 2023-06-21 - fix warnings when no history data is provided + extend scan_interval to 60 seconds
+// v1.5.2  release date : 2023-06-28 - code optimization
 //====================================================================================================================================================
 
 /*
@@ -902,7 +903,7 @@ function f_settings(){
               content: counter(li-counter);
               counter-increment: li-counter;
           }
-          </styl
+          </style>
       </body>
   </html>
   <?php exit;
