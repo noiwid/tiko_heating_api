@@ -1,4 +1,4 @@
-<?
+<?php
 //===================================================================================================
 // TIKO API GATEWAY
 // This component allowing to manage traditional radiators connected via the TIKO solution from within Home Assistant server
@@ -32,7 +32,6 @@ $enable_logs = true;
 
 // Load environnement variables & credentials
 
-<?php
 $currentFolder = dirname(__FILE__).DIRECTORY_SEPARATOR;
 
 if(file_exists($currentFolder.'tiko.env'))
