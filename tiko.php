@@ -263,14 +263,14 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
          if(is_array($heaters))
             foreach($heaters as $k=>$v){
 
-               $array["tiko"]["climate"][] = array(
+               $array["climate"][] = array(
                   "platform"=>"generic_thermostat",
                   "name"=>$v,
                   "heater"=>"switch.radiateurs_on_off",
                   "target_sensor"=>"sensor.".clean($v)."_temperature"
                );
-               $array["tiko"]["shell_command"][clean($v)."_set_temp"] = '/usr/bin/curl -X POST '.$baseurl.'&room_id='.$k.'&temperature={{ state_attr("climate.'.clean($v).'", "temperature") }}';
-               $array["tiko"]["automation"][] = array(
+               $array["shell_command"][clean($v)."_set_temp"] = '/usr/bin/curl -X POST '.$baseurl.'&room_id='.$k.'&temperature={{ state_attr("climate.'.clean($v).'", "temperature") }}';
+               $array["automation"][] = array(
                   "id"=>"sync_status_on_".clean($v),
                   "alias"=>"sync_status_on_".clean($v),
                   "description"=>"on H.A startup or heater status change, check if heater is currently on to update the climate object in HA",
@@ -300,7 +300,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                   ),
                   "mode"=>"single",
                );
-               $array["tiko"]["automation"][] = array(
+               $array["automation"][] = array(
                   "id"=>"sync_status_off_".clean($v),
                   "alias"=>"sync_status_off_".clean($v),
                   "description"=>"on H.A startup or heater status change, check if heater is currently off to update the climate object in HA",
@@ -330,7 +330,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                   ),
                   "mode"=>"single",
                );
-               $array["tiko"]["automation"][] = array(
+               $array["automation"][] = array(
                   "id"=>"sync_temp_".clean($v),
                   "alias"=>"sync_temp_".clean($v),
                   "description"=>"on H.A startup or temp change, update the climate object in HA",
@@ -355,7 +355,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                   ),
                   "mode"=>"single",
                );
-               $array["tiko"]["automation"][] = array(
+               $array["automation"][] = array(
                   "id"=>"set_temp_".clean($v),
                   "alias"=>"set_temp_".clean($v),
                   "description"=>"on climate update, send update command to endpoint",
@@ -395,7 +395,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
 
                );
 
-               $array["tiko"]["sensor"][] = array(
+               $array["sensor"][] = array(
                   "platform"=>"template",
                   "sensors"=>array(
                      clean($v)."_temperature" => array(
@@ -406,7 +406,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                      )
                   )
                );
-               $array["tiko"]["sensor"][] = array(
+               $array["sensor"][] = array(
                   "platform"=>"template",
                   "sensors"=>array(
                      clean($v)."_humidity" => array(
@@ -417,7 +417,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                      )
                   )
                );
-               $array["tiko"]["sensor"][] = array(
+               $array["sensor"][] = array(
                   "platform"=>"template",
                   "sensors"=>array(
                      clean($v)."_temperature_target" => array(
@@ -429,7 +429,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                   )
                );
 
-               $array["tiko"]["binary_sensor"][] = array(
+               $array["binary_sensor"][] = array(
                   "platform"=>"template",
                   "sensors"=>array(
                      clean($v)."_chauffage" => array(
@@ -440,7 +440,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                   )
                );
             } // end foreach
-            $array["tiko"]["command_line"][] = array(
+            $array["command_line"][] = array(
                "sensor"=>array(
                  "name"=>"Tiko_consumption",
                  "json_attributes"=>array(
@@ -458,7 +458,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                )
             );
 
-            $array["tiko"]["command_line"][] = array(
+            $array["command_line"][] = array(
                "sensor"=>array(
                  "name"=>"Tiko_settings",
                  "json_attributes"=> 
@@ -468,7 +468,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                  "value_template" => 1
                 )
             );
-            $array["tiko"]["command_line"][] = array(
+            $array["command_line"][] = array(
               "switch"=>array(
                   "name"=>"Radiateurs on/off",
                   "command_on"=>"curl -g '".$baseurl."&mode=0'",
@@ -479,7 +479,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                   "icon"=>"{% if (value_json.disableHeating) %} mdi:radiator-off {% else %} mdi:radiator-off {% endif %}"
                 )
             );
-            $array["tiko"]["command_line"][] = array(
+            $array["command_line"][] = array(
               "switch"=>array(
                   "name"=>"Radiateurs off",
                   "command_on"=>"curl -g '".$baseurl."&mode=disableHeating'",
@@ -490,7 +490,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                   "icon"=>"{% if (value_json.disableHeating) %} mdi:radiator-off {% else %} mdi:radiator-off {% endif %}",
                 )
             );
-            $array["tiko"]["command_line"][] = array(
+            $array["command_line"][] = array(
               "switch"=>array(
                   "name"=>"Radiateurs boost",
                   "command_on"=>"curl -g '".$baseurl."&mode=boost'",
@@ -501,7 +501,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                   "icon"=>"{% if (value_json.boost) %} mdi:sun-thermometer {% else %} mdi:lightning-bolt-outline {% endif %}",
                 )
             );
-            $array["tiko"]["command_line"][] = array(
+            $array["command_line"][] = array(
               "switch"=>array(
                   "name"=>"Radiateurs absence",
                   "command_on"=>"curl -g '".$baseurl."&mode=absence'",
@@ -512,7 +512,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                   "icon"=>"{% if (value_json.absence) %} mdi:door-closed-lock {% else %} mdi:door {% endif %}",
                 )
             );
-            $array["tiko"]["command_line"][] = array(
+            $array["command_line"][] = array(
               "switch"=>array(
                   "name"=>"Radiateurs hors gel",
                   "command_on"=>"curl -g '".$baseurl."&mode=frost'",
@@ -523,7 +523,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                   "icon"=>"{% if (value_json.frost) %} mdi:snowflake-thermometer {% else %} mdi:snowflake-thermometer {% endif %}",
               )
             );
-            $array["tiko"]["sensor"][] = array(
+            $array["sensor"][] = array(
                 "platform"=>"template",
                 "sensors"=>array(
                     "tiko_consumption_vs_lastmonth" => array(
@@ -533,7 +533,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                     )
                 )
             );
-            $array["tiko"]["sensor"][] = array(
+            $array["sensor"][] = array(
                 "platform"=>"template",
                 "sensors"=>array(
                     "tiko_consumption_vs_yesterday" => array(
