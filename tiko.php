@@ -22,9 +22,9 @@
 // v1.5    release date : 2023-06-12 - command_line sensors & switchs moved to separate section (to fit 2023.8 upcoming requirements) + minor bugfixes
 // v1.5.1  release date : 2023-06-21 - fix warnings when no history data is provided + extend scan_interval to 60 seconds
 // v1.5.2  release date : 2023-06-28 - code optimization
-// v1.5.3  release date : 2023-06-29 - bug fix!
+// v1.5.3  release date : 2023-06-29 - bug fix
+// v1.5.4  release date : 2023-06-29 - unique_id added to climate entity to allow managing them from Lovelace UI
 //====================================================================================================================================================
-
 
 /*
 DEBUG MODE
@@ -268,6 +268,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                $array["tiko"]["climate"][] = array(
                   "platform"=>"generic_thermostat",
                   "name"=>$v,
+                  "unique_id"=>"climate_".clean($v),
                   "heater"=>"switch.radiateurs_on_off",
                   "target_sensor"=>"sensor.".clean($v)."_temperature"
                );
