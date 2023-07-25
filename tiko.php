@@ -847,7 +847,7 @@ function f_settings(){
            <ol class="border">
             <?php echo $error_feedback;?>
            </ol>
-        <?}
+        <?php}
         else {?>
        <form method="POST" action="<?php echo $_SELF;?>">
          <ol class="border">
