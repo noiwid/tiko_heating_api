@@ -825,7 +825,7 @@ function f_settings(){
       if($content){
         file_put_contents($currentFolder.'spyc.php', $content);
       }
-    }?>
+    } ?>
    <!doctype html>
     <html lang="fr">
     <head>
@@ -842,14 +842,14 @@ function f_settings(){
              <div class="code">extension=curl</div>
           </li>';
         }
-        if($error_feedback){?>
+        if($error_feedback){ ?>
            <h1>Pré-requis</h1>
            <ol class="border">
-            <?php echo $error_feedback;?>
+            <?php echo $error_feedback; ?>
            </ol>
-        <?php}
-        else {?>
-       <form method="POST" action="<?php echo $_SELF;?>">
+        <?php }
+        else { ?>
+       <form method="POST" action="<?php echo $_SELF; ?>">
          <ol class="border">
             <li>
                 Saisissez vos identifiants TIKO :<br /><br />
@@ -868,7 +868,7 @@ function f_settings(){
           </ol>
           Les identifiants seront stockés dans le fichier <?php echo $currentFolder.'<strong>tiko.env</strong>';?>
         </form>
-       <?php }?>
+       <?php } ?>
        <style>
            body { font-family:tahoma }
            label { display:inline-block; width:80px; text-align:right }
@@ -908,4 +908,4 @@ function f_settings(){
       </body>
   </html>
   <?php exit;
-}?>
+} ?>
