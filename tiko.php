@@ -24,6 +24,7 @@
 // v1.5.2  release date : 2023-06-28 - code optimization
 // v1.5.3  release date : 2023-06-29 - bug fix
 // v1.5.4  release date : 2023-06-29 - unique_id added to climate entity to allow managing them from Lovelace UI + disable SSL certif validation
+// v1.5.5  release date : 2023-09-12 - clean function extended to replace points
 //====================================================================================================================================================
 
 /*
@@ -765,7 +766,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
 function clean($string) {
     return strtolower(
         preg_replace(
-          array( '#[\\s-]+#', '#[^A-Za-z0-9. _]+#' ),
+          array( '#[\\s-]+#', '#[^A-Za-z0-9_]+#' ),
           array( '_', '' ),
           cleanStr(
               trim($string)
@@ -773,6 +774,7 @@ function clean($string) {
         )
     );
 }
+
 function cleanStr($text) {
     $utf8 = array(
         '/[áàâãªä]/u'   =>   'a',
