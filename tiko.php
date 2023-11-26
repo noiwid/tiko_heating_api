@@ -24,7 +24,7 @@
 // v1.5.2  release date : 2023-06-28 - code optimization
 // v1.5.3  release date : 2023-06-29 - bug fix
 // v1.5.4  release date : 2023-06-29 - unique_id added to climate entity to allow managing them from Lovelace UI + disable SSL certif validation
-// v1.5.5  release date : 2023-09-12 - clean function extended to replace points
+// v1.6.0  release date : 2023-11-26 - bug fix related to consommation comparaison sensors 
 //====================================================================================================================================================
 
 /*
@@ -189,6 +189,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
        **************************/
       if($_REQUEST["room_id"] and $_REQUEST["temperature"]>0){
           $json = '{ 
+               "operationName":"SET_PROPERTY_ROOM_ADJUST_TEMPERATURE",
                "variables":{
                   "propertyId": '.$account_id.',
                   "roomId":'.$_REQUEST["room_id"].',
@@ -547,7 +548,6 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                     )
                 )
             );
-
             ////////////////////////////////////
             // Prepare les cartes lovelace
             ////////////////////////////////////
@@ -766,7 +766,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
 function clean($string) {
     return strtolower(
         preg_replace(
-          array( '#[\\s-]+#', '#[^A-Za-z0-9_]+#' ),
+          array( '#[\\s-]+#', '#[^A-Za-z0-9. _]+#' ),
           array( '_', '' ),
           cleanStr(
               trim($string)
@@ -774,7 +774,6 @@ function clean($string) {
         )
     );
 }
-
 function cleanStr($text) {
     $utf8 = array(
         '/[áàâãªä]/u'   =>   'a',
@@ -827,7 +826,7 @@ function f_settings(){
       if($content){
         file_put_contents($currentFolder.'spyc.php', $content);
       }
-    } ?>
+    }?>
    <!doctype html>
     <html lang="fr">
     <head>
@@ -835,6 +834,7 @@ function f_settings(){
       <title>TIKO API Endpoint</title>
     </head>
     <body>
+
       <?php
         if (!is_writable($currentFolder)) {
             $error_feedback = '<li><strong>Erreur </strong>: le dossier <strong>'.$currentFolder.'</strong> n\'est pas autorisé en écriture.</li>';
@@ -844,14 +844,14 @@ function f_settings(){
              <div class="code">extension=curl</div>
           </li>';
         }
-        if($error_feedback){ ?>
+        if(isset($error_feedback) && $error_feedback){?>
            <h1>Pré-requis</h1>
            <ol class="border">
-            <?php echo $error_feedback; ?>
+            <?php echo $error_feedback;?>
            </ol>
         <?php }
-        else { ?>
-       <form method="POST" action="<?php echo $_SELF; ?>">
+        else {?>
+       <form method="POST" action="<?php echo $_SELF;?>">
          <ol class="border">
             <li>
                 Saisissez vos identifiants TIKO :<br /><br />
@@ -870,7 +870,7 @@ function f_settings(){
           </ol>
           Les identifiants seront stockés dans le fichier <?php echo $currentFolder.'<strong>tiko.env</strong>';?>
         </form>
-       <?php } ?>
+       <?php }?>
        <style>
            body { font-family:tahoma }
            label { display:inline-block; width:80px; text-align:right }
@@ -910,4 +910,4 @@ function f_settings(){
       </body>
   </html>
   <?php exit;
-} ?>
+}?>
