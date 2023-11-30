@@ -25,6 +25,7 @@
 // v1.5.3  release date : 2023-06-29 - bug fix
 // v1.5.4  release date : 2023-06-29 - unique_id added to climate entity to allow managing them from Lovelace UI + disable SSL certif validation
 // v1.6.0  release date : 2023-11-26 - bug fix related to consommation comparaison sensors 
+// v1.6.1  release date : 2023-11-30 - PHP Warning due to undefined vars fixed
 //====================================================================================================================================================
 
 /*
@@ -40,7 +41,7 @@ $currentFolder = dirname(__FILE__).DIRECTORY_SEPARATOR;
 if(file_exists($currentFolder.'tiko.env'))
   $config = parse_ini_file($currentFolder.'tiko.env', true);
 
-if ($_REQUEST['enr_ok']) {
+if (isset($_REQUEST['enr_ok']) && $_REQUEST['enr_ok']) {
    $randomtoken = bin2hex(random_bytes(32));
 
   // Get current URL
@@ -146,7 +147,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
    /*******************************
    * GET GLOBAL ENERGY CONSUMPTION
    *******************************/
-   if(!$_REQUEST["room_id"] and !isset($_REQUEST["mode"]) and $_REQUEST["consumption"]){
+   if(!isset($_REQUEST["room_id"]) and !isset($_REQUEST["mode"]) and isset($_REQUEST["consumption"]) and $_REQUEST["consumption"]){
       $datas = f_tiko(false, $token, $account_id);
       $feedback = $datas["response"];
       if($enable_logs) $logs = file_put_contents($currentFolder.date("Ymd-His")."-getDatas.log", print_r($feedback, true));
@@ -155,7 +156,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
    /**********************************
    * GET heaters datas + global modes
    ***********************************/
-   elseif(!$_REQUEST["room_id"] and !isset($_REQUEST["mode"]) and !isset($_REQUEST["install"])){
+   elseif(!isset($_REQUEST["room_id"]) and !isset($_REQUEST["mode"]) and !isset($_REQUEST["install"])){
       $json = '{
          "operationName":"GET_PROPERTY_OVERVIEW_DECENTRALISED",
          "variables":{ "id":'.$account_id.' },
@@ -187,7 +188,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
        * @param decimal $temperature target temperature
        * @return boolean
        **************************/
-      if($_REQUEST["room_id"] and $_REQUEST["temperature"]>0){
+      if(isset($_REQUEST["room_id"]) and $_REQUEST["room_id"] and $_REQUEST["temperature"]>0){
           $json = '{ 
                "operationName":"SET_PROPERTY_ROOM_ADJUST_TEMPERATURE",
                "variables":{
@@ -237,7 +238,7 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
       /*****************************************
        * INSTALLER, generate the tiko.yaml file
       *****************************************/
-      if($_REQUEST["install"]){
+      if(isset($_REQUEST["install"]) and $_REQUEST["install"]){
 
          if(file_exists($currentFolder.'tiko.env'))
           require($currentFolder.'spyc.php');  
@@ -272,7 +273,9 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
                   "name"=>$v,
                   "unique_id"=>"climate_".clean($v),
                   "heater"=>"switch.radiateurs_on_off",
-                  "target_sensor"=>"sensor.".clean($v)."_temperature"
+                  "target_sensor"=>"sensor.".clean($v)."_temperature",
+                  "min_temp"=>7,
+                  "max_temp"=>22.5
                );
                $array["tiko"]["shell_command"][clean($v)."_set_temp"] = '/usr/bin/curl -k -X POST '.$baseurl.'&room_id='.$k.'&temperature={{ state_attr("climate.'.clean($v).'", "temperature") }}';
                $array["tiko"]["automation"][] = array(
