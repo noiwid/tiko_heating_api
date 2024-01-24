@@ -26,6 +26,7 @@
 // v1.5.4  release date : 2023-06-29 - unique_id added to climate entity to allow managing them from Lovelace UI + disable SSL certif validation
 // v1.6.0  release date : 2023-11-26 - bug fix related to consommation comparaison sensors 
 // v1.6.1  release date : 2023-11-30 - PHP Warning due to undefined vars fixed
+// v1.7    release date : 2024-01-24 - Fix bug caused by API changes that disrupted temperature retrieval
 //====================================================================================================================================================
 
 /*
@@ -157,11 +158,14 @@ if(($hash and $_REQUEST["hash"]==$hash) or $_REQUEST["install"]){
    * GET heaters datas + global modes
    ***********************************/
    elseif(!isset($_REQUEST["room_id"]) and !isset($_REQUEST["mode"]) and !isset($_REQUEST["install"])){
-      $json = '{
-         "operationName":"GET_PROPERTY_OVERVIEW_DECENTRALISED",
-         "variables":{ "id":'.$account_id.' },
-         "query":"query GET_PROPERTY_OVERVIEW_DECENTRALISED($id: Int!, $excludeRooms: [Int]) {\n  settings {\n    benchmark {\n      isEnabled\n      __typename\n    }\n    __typename\n  }\n  property(id: $id) {\n    id\n    mode\n    mboxDisconnected\n    isNetatmoAuthorised\n    netatmoLinkAccountUrl\n    isSinapsiEnabled\n    isSinapsiAuthorised\n    allInstalled\n    ownerPermission\n    constructionYear\n    surfaceArea\n    floors\n    valueProposition\n    address {\n      id\n      street\n      number\n      city\n      zipCode\n      __typename\n    }\n    tips {\n      id\n      tip\n      __typename\n    }\n    ...CentralisedDevicesCompact\n    rooms(excludeRooms: $excludeRooms) {\n      id\n      name\n      type\n      color\n      heaters\n      hasTemperatureSchedule\n      currentTemperatureDegrees\n      targetTemperatureDegrees\n      humidity\n      sensors\n      devices {\n        id\n        code\n        type\n        name\n        mac\n        __typename\n      }\n      ...Status\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment CentralisedDevicesCompact on PropertyType {\n  devices(excludeDecentralised: true) {\n    id\n    code\n    type\n    name\n    mac\n    __typename\n  }\n  externalDevices {\n    id\n    name\n    __typename\n  }\n  __typename\n}\n\nfragment Status on RoomType {\n  status {\n    disconnected\n    heaterDisconnected\n    heatingOperating\n    sensorBatteryLow\n    sensorDisconnected\n    temporaryAdjustment\n    __typename\n  }\n  __typename\n}"
-      }';
+      $data = array(
+        "operationName" => "GET_PROPERTY_OVERVIEW_DECENTRALISED",
+        "variables" => array(
+            "id" => $account_id
+        ),
+        "query" => "query GET_PROPERTY_OVERVIEW_DECENTRALISED(\$id: Int!, \$excludeRooms: [Int]) {\n settings {\n benchmark {\n isEnabled\n __typename\n }\n __typename\n }\n property(id: \$id) {\n id\n mode\n mboxDisconnected\n isSinapsiEnabled\n isSinapsiAuthorised\n allInstalled\n ownerPermission\n constructionYear\n surfaceArea\n floors\n valueProposition\n address {\n id\n street\n number\n city\n zipCode\n __typename\n }\n tips {\n id\n tip\n __typename\n }\n ...CentralisedDevicesCompact\n rooms(excludeRooms: \$excludeRooms) {\n id\n name\n type\n color\n heaters\n hasTemperatureSchedule\n currentTemperatureDegrees\n targetTemperatureDegrees\n humidity\n sensors\n devices {\n id\n code\n type\n name\n mac\n __typename\n }\n mode {\n boost\n absence\n frost\n disableHeating\n __typename\n }\n ...ExtendedStatus\n __typename\n }\n __typename\n }\n}\n\nfragment CentralisedDevicesCompact on PropertyType {\n devices(excludeDecentralised: true) {\n id\n code\n type\n name\n mac\n __typename\n }\n externalDevices {\n id\n name\n __typename\n }\n __typename\n}\n\nfragment ExtendedStatus on RoomType {\n status {\n disconnected\n heaterDisconnected\n heatingOperating\n sensorBatteryLow\n sensorDisconnected\n temporaryAdjustment\n heatersRegulated\n heaterCalibrationState\n __typename\n }\n __typename\n}"
+      );
+  	  $json = json_encode($data);
       $rooms = f_tiko($json, $token);  
       $modes = $rooms["data"]["property"]["mode"];
       foreach($modes as $k=>$v){
